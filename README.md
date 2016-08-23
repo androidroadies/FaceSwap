@@ -2,7 +2,11 @@
 Android app for face swapping. 
 
 A combination of the projects found here:
+
 http://www.learnopencv.com/face-swap-using-opencv-c-python/
+
+and here:
+
 https://github.com/tzutalin/dlib-android-app
 
 The app icon 
