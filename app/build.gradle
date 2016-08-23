@@ -1,0 +1,53 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "${rootProject.ext.androidBuildToolsVersion}"
+
+    defaultConfig {
+        applicationId "com.tzutalin.dlibtest"
+        minSdkVersion 21
+        targetSdkVersion 23
+        versionCode 1
+        versionName "${rootProject.ext.releaseVersionName}"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+apply plugin: 'com.neenbedankt.android-apt'
+def AAVersion = '4.0.0'
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportSdkVersion}"
+    compile 'com.android.support:design:23.3.0'
+    compile 'com.github.dexafree:materiallist:3.0.1'
+    compile project(':dlib')
+    apt "org.androidannotations:androidannotations:$AAVersion"
+    compile "org.androidannotations:androidannotations-api:$AAVersion"
+    compile project(':openCVLibrary310')
+}
+apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.hugo'
