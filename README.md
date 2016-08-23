@@ -24,8 +24,8 @@ http://emojione.com/
 Swap example of some (public domain) photos.
 
 <p align="center">
-<img src="git_images/clinton.png" height="500" alt="Screenshot"/>
-<img src="git_images/bush.png" height="500" alt="Screenshot"/>
-<img src="git_images/bush_clinton.jpg" height="500" alt="Screenshot"/>
+<img src="git_images/clinton.png" height="450" alt="Screenshot"/>
+<img src="git_images/bush.png" height="450" alt="Screenshot"/>
+<img src="git_images/bush_clinton.jpg" height="450" alt="Screenshot"/>
 </p>
 
