@@ -22,7 +22,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="com.alex.faceswap.MainActivityFaceSwap"
+            android:name=".ActivitySelfieSwap"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait">
             <intent-filter>

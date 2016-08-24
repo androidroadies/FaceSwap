@@ -18,7 +18,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -35,12 +34,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.alex.faceswap.R;
-
 import java.io.File;
 
 
-public class MainActivityFaceSwap extends AppCompatActivity {
+public class ActivitySelfieSwap extends AppCompatActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -80,17 +77,14 @@ public class MainActivityFaceSwap extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_activity_face_swap);
+        setContentView(R.layout.activity_selfie_swap);
 
         // Use with snackbars
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_content);
 
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
@@ -192,7 +186,7 @@ public class MainActivityFaceSwap extends AppCompatActivity {
 
 
                     if (swappedBitmap != null) {
-                        Intent intent = new Intent(MainActivityFaceSwap.this, ResultActivity.class);
+                        Intent intent = new Intent(ActivitySelfieSwap.this, ResultActivity.class);
                         GlobalBItmap.img = dest;
                         startActivity(intent);
                     }
@@ -250,7 +244,7 @@ public class MainActivityFaceSwap extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main_activity_face_swap, menu);
+        getMenuInflater().inflate(R.menu.menu_selfie_swap, menu);
         return true;
     }
 
@@ -309,7 +303,7 @@ public class MainActivityFaceSwap extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main_activity_face_swap, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_selfie_swap, container, false);
             image1 = (ImageView) rootView.findViewById(com.tzutalin.dlib.R.id.image);
             return rootView;
         }
@@ -348,7 +342,7 @@ public class MainActivityFaceSwap extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main_activity_face_swap, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_selfie_swap, container, false);
             image2 = (ImageView) rootView.findViewById(com.tzutalin.dlib.R.id.image);
 
             return rootView;
@@ -496,17 +490,19 @@ public class MainActivityFaceSwap extends AppCompatActivity {
         int h = bm.getHeight();
         int w = bm.getWidth();
 
+        int maxSize = 1200;
+
         if (h == w) {
-            h = 2048;
-            w = 2048;
+            h = maxSize;
+            w = maxSize;
         } else if (h > w) {
             float ratio = (float) w / (float) h;
-            h = 2048;
-            w = (int) (2048.0 * ratio);
+            h = maxSize;
+            w = (int) (maxSize * ratio);
         } else {
             float ratio = (float) h / w;
-            w = 2048;
-            h = (int) (2048.0 * ratio);
+            w = maxSize;
+            h = (int) (maxSize * ratio);
         }
 
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bm, w, h, true);
