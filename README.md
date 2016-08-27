@@ -17,7 +17,8 @@ has two emojis from:
 http://emojione.com/
 
 ### App features
-* Swap faces of two selfies. Pick two photos and swap!
+* Swap faces of two selfies. Pick two photos and swap! (Use two first tabs)
+* Swap faces of people in the same photo. (Use last third tab)
 
 ### App interface
 <p align="center">
@@ -30,6 +31,6 @@ Swap example of some (public domain) photos.
 <p align="center">
 <img src="git_images/bush.png" height="450" alt="Screenshot"/>
 <img src="git_images/clinton.png" height="450" alt="Screenshot"/>
-<img src="git_images/bush_clinton.jpg" height="450" alt="Screenshot"/>
+<img src="git_images/bush_clinton.png" height="450" alt="Screenshot"/>
 </p>
 

@@ -15,6 +15,7 @@
 
     <color name="colorAccent">#CFD8DC</color>
 
+    <color name="darkGray">#616161</color>
     <color name="veryDarkGray">#212121</color>
 
 </resources>

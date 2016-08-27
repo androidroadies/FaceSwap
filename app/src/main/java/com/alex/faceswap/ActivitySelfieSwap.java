@@ -26,8 +26,6 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -35,9 +33,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 
-public class ActivitySelfieSwap extends AppCompatActivity {
+public class ActivitySelfieSwap extends AppCompatActivity implements TabLayout.OnTabSelectedListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -58,11 +58,10 @@ public class ActivitySelfieSwap extends AppCompatActivity {
     private static final int MEDIA_TYPE_IMAGE = 1;
 
     // Objects to display images in
-    private static ImageView image1;
-    private static ImageView image2;
+    private static ImageView image1, image2, image3;
     // Paths to first and second images
     private String path1 = null, path2 = null;
-    private Bitmap bitmap1 = null, bitmap2 = null;
+    private Bitmap bitmap1 = null, bitmap2 = null, bitmap3 = null;
 
     private int selectedTabIndex = 0;
     private TabLayout tabLayout;
@@ -94,8 +93,10 @@ public class ActivitySelfieSwap extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
         tabLayout.getTabAt(0).setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_face_white_48dp, null));
-        tabLayout.getTabAt(1).setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_person_white_48dp, null));
+        tabLayout.getTabAt(1).setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_face_white_48dp, null));
+        tabLayout.getTabAt(2).setIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_people_white_48dp, null));
 
+        tabLayout.setOnTabSelectedListener(this);
     }
 
 
@@ -139,8 +140,12 @@ public class ActivitySelfieSwap extends AppCompatActivity {
      */
     public void swapMode(final View view) {
 
-        // Update image view
-        if (bitmap1 != null && bitmap2 != null) {
+        int selectedTab = tabLayout.getSelectedTabPosition();
+        final String[] errMessage = {null};
+        final boolean[] allOk = {true};
+
+        // Swap faces, selfie mode
+        if (bitmap1 != null && bitmap2 != null && selectedTab <= 1) {
 
             // Make the images of equal size, otherwise nasty errors.
             int maxW = bitmap1.getWidth() > bitmap2.getWidth() ? bitmap1.getWidth() : bitmap2.getWidth();
@@ -152,7 +157,6 @@ public class ActivitySelfieSwap extends AppCompatActivity {
 
             final Bitmap bmp1 = overlay(bmp1Temp, bitmap1);
             final Bitmap bmp2 = overlay(bmp2Temp, bitmap2);
-
 
 
             Snackbar.make(view, "Swapping faces", Snackbar.LENGTH_LONG).setAction("Action", null).show();
@@ -168,35 +172,75 @@ public class ActivitySelfieSwap extends AppCompatActivity {
                     final FaceSwap faceSwap = new FaceSwap(getResources(), bmp1, bmp2);
 
                     try {
-                        faceSwap.prepareSwapping();
+                        faceSwap.prepareSelfieSwapping();
                     } catch (FaceSwap.FaceSwapException e) {
+                        errMessage[0] = e.getLocalizedMessage();
                         e.printStackTrace();
+                        allOk[0] = false;
+                        Snackbar.make(view, errMessage[0], Snackbar.LENGTH_LONG).setAction("Action", null).show();
                     }
 
-                    swappedBitmap = faceSwap.portraitSwap();
+                    // If no errors: proceed
+                    if (allOk[0]) {
 
-                    Bitmap dest = Bitmap.createBitmap(swappedBitmap, 0, 0, bitmap2.getWidth(), bitmap2.getHeight());
+                        swappedBitmap = faceSwap.selfieSwap();
 
-
-                    if (tabLayout.getSelectedTabPosition() == 0) {
-                        PlaceholderFragmentA ph = (PlaceholderFragmentA) mSectionsPagerAdapter.getItem(0);
-                    } else {
-                        PlaceholderFragmentB ph = (PlaceholderFragmentB) mSectionsPagerAdapter.getItem(1);
-                    }
+                        Bitmap dest = Bitmap.createBitmap(swappedBitmap, 0, 0, bitmap2.getWidth(), bitmap2.getHeight());
 
 
-                    if (swappedBitmap != null) {
-                        Intent intent = new Intent(ActivitySelfieSwap.this, ResultActivity.class);
-                        GlobalBItmap.img = dest;
-                        startActivity(intent);
+                        if (swappedBitmap != null) {
+                            Intent intent = new Intent(ActivitySelfieSwap.this, ResultActivity.class);
+                            GlobalBItmap.img = dest;
+                            startActivity(intent);
+                        }
+
                     }
 
                 }
             }, 500);
 
+
+
+        } else if (bitmap3 != null && selectedTab == 2) {
+            // Swap faces, many faced mode
+            Snackbar.make(view, "Swapping faces", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    Bitmap swappedBitmap = null;
+                    final FaceSwap faceSwap = new FaceSwap(getResources(), bitmap3);
+
+                    try {
+                        faceSwap.prepareManyFacedSwapping();
+
+                    } catch (FaceSwap.FaceSwapException e) {
+                        errMessage[0] = e.getLocalizedMessage();
+                        e.printStackTrace();
+                        allOk[0] = false;
+                        Snackbar.make(view, errMessage[0], Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                    }
+
+                    if (allOk[0]) {
+                        swappedBitmap = faceSwap.manyFacedSwap();
+
+                        if (swappedBitmap != null) {
+                            Intent intent = new Intent(ActivitySelfieSwap.this, ResultActivity.class);
+                            GlobalBItmap.img = swappedBitmap;
+                            startActivity(intent);
+                        }
+                    }
+                }
+            }, 500);
+
+
         } else {
             Snackbar.make(view, "Image not available :(", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
+
+
     }
 
 
@@ -241,28 +285,39 @@ public class ActivitySelfieSwap extends AppCompatActivity {
     }
 
 
+    /**
+     * -------------------------------------------------------------------------------------------
+     * Code for Tab listeners
+     * -------------------------------------------------------------------------------------------
+     */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_selfie_swap, menu);
-        return true;
-    }
+    public void onTabSelected(TabLayout.Tab tab) {
+        PlaceholderFragmentA phA = (PlaceholderFragmentA) mSectionsPagerAdapter.getItem(0);
+        PlaceholderFragmentB phB = (PlaceholderFragmentB) mSectionsPagerAdapter.getItem(1);
+        PlaceholderFragmentC phC = (PlaceholderFragmentC) mSectionsPagerAdapter.getItem(2);
 
+        switch (tabLayout.getSelectedTabPosition()) {
+            case 0:
+                if (bitmap1 != null)
+                    phA.setImage(bitmap1);
+                break;
+            case 1:
+                if (bitmap2 != null)
+                    phB.setImage(bitmap2);
+                break;
+            case 2:
+                if (bitmap3 != null)
+                    phC.setImage(bitmap3);
+                break;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
         }
-
-        return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) { /* Not used */ }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) { /* Not used */ }
 
 
     /**
@@ -281,8 +336,7 @@ public class ActivitySelfieSwap extends AppCompatActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
         ImageView image = image1;
 
-        public PlaceholderFragmentA() {
-        }
+        public PlaceholderFragmentA() {}
 
         public void setImage(Bitmap bm) {
             image.setImageBitmap(bm);
@@ -320,8 +374,7 @@ public class ActivitySelfieSwap extends AppCompatActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
         ImageView image = image2;
 
-        public PlaceholderFragmentB() {
-        }
+        public PlaceholderFragmentB() {}
 
         public void setImage(Bitmap bm) {
             image.setImageBitmap(bm);
@@ -349,6 +402,44 @@ public class ActivitySelfieSwap extends AppCompatActivity {
         }
     }
 
+    /* Fragment for many faced swaps ------------------------------------------------------------ */
+
+    public static class PlaceholderFragmentC extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+        ImageView image = image3;
+
+        public PlaceholderFragmentC() {}
+
+        public void setImage(Bitmap bm) {
+            image.setImageBitmap(bm);
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        public static PlaceholderFragmentC newInstance(int sectionNumber) {
+            PlaceholderFragmentC fragment = new PlaceholderFragmentC();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_selfie_swap, container, false);
+            image3 = (ImageView) rootView.findViewById(com.tzutalin.dlib.R.id.image);
+
+            return rootView;
+        }
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -362,15 +453,16 @@ public class ActivitySelfieSwap extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             // Return a PlaceholderFragment
-            if (position == 0)
-                return PlaceholderFragmentA.newInstance(position + 1);
+            if (position == 0) return PlaceholderFragmentA.newInstance(position);
+            if (position == 1) return PlaceholderFragmentB.newInstance(position);
+            if (position == 2) return PlaceholderFragmentC.newInstance(position);
 
-            return PlaceholderFragmentB.newInstance(position + 1);
+            return null;
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
     }
@@ -386,6 +478,10 @@ public class ActivitySelfieSwap extends AppCompatActivity {
 
         String path = null;
 
+        PlaceholderFragmentA phA = (PlaceholderFragmentA) mSectionsPagerAdapter.getItem(0);
+        PlaceholderFragmentB phB = (PlaceholderFragmentB) mSectionsPagerAdapter.getItem(1);
+        PlaceholderFragmentC phC = (PlaceholderFragmentC) mSectionsPagerAdapter.getItem(2);
+
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             /* Handle if picture was taken with camera */
 
@@ -396,8 +492,13 @@ public class ActivitySelfieSwap extends AppCompatActivity {
 
                 if (tabLayout.getSelectedTabPosition() == 0) {
                     bitmap1 = bitmap;
-                } else {
+                    phA.setImage(bitmap1);
+                } else if (tabLayout.getSelectedTabPosition() == 1) {
                     bitmap2 = bitmap;
+                    phB.setImage(bitmap2);
+                } else if (tabLayout.getSelectedTabPosition() == 2) {
+                    bitmap3 = bitmap;
+                    phC.setImage(bitmap3);
                 }
 
             } else {
@@ -408,64 +509,52 @@ public class ActivitySelfieSwap extends AppCompatActivity {
 
         /* Handle if picture was selected in the file browser */
 
-        if (requestCode == RESULT_LOAD_IMAGE) {
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK) {
+            Uri selectedImage = data.getData();
+            Bitmap bitmap = null;
 
-            if (resultCode == RESULT_OK) {
+            if (selectedImage.toString().startsWith("content://com.google.android.apps.photos.content")) {
+                // Selected image has to be downloaded
+                try {
+                    InputStream is = getContentResolver().openInputStream(selectedImage);
+                    if (is != null) {
+                        Bitmap bitmapTemp = BitmapFactory.decodeStream(is);
+                        bitmap = resizeBitmap(bitmapTemp);
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
 
-
-                Uri selectedImage = data.getData();
+            } else {
+                // Selected image is alreade stored in phone
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
-                Cursor cursor = getContentResolver().query(selectedImage,
-                        filePathColumn, null, null, null);
+                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
                 cursor.moveToFirst();
 
                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                 path = cursor.getString(columnIndex);
                 cursor.close();
 
-                Bitmap bitmap = makeBitmap(path);
+                bitmap = makeBitmap(path);
+            }
 
+            if (bitmap != null) {
                 if (tabLayout.getSelectedTabPosition() == 0) {
                     bitmap1 = bitmap;
-                } else {
+                    phA.setImage(bitmap1);
+                } else if (tabLayout.getSelectedTabPosition() == 1) {
                     bitmap2 = bitmap;
-                }
-            } else {
-
-                Toast.makeText(this, "No picture was selected!", Toast.LENGTH_SHORT).show();
-            }
-
-        }
-
-        if (path != null) {
-
-            Bitmap selBitmap = makeBitmap(path);
-
-            PlaceholderFragmentA phA = (PlaceholderFragmentA) mSectionsPagerAdapter.getItem(0);
-            PlaceholderFragmentB phB = (PlaceholderFragmentB) mSectionsPagerAdapter.getItem(1);
-
-
-            if (tabLayout.getSelectedTabPosition() == 0) {
-
-                if (selBitmap.getWidth() * selBitmap.getHeight() < 160000) {
-                    Toast.makeText(this, "Selected image is too small", Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-            } else {
-
-                if (selBitmap.getWidth() * selBitmap.getHeight() < 160000) {
-                    Toast.makeText(this, "Selected image is too small", Toast.LENGTH_LONG
-                    ).show();
-                    return;
+                    phB.setImage(bitmap2);
+                } else if (tabLayout.getSelectedTabPosition() == 2) {
+                    bitmap3 = bitmap;
+                    phC.setImage(bitmap3);
                 }
             }
 
-            if (tabLayout.getSelectedTabPosition() == 0) phA.setImage(selBitmap);
-            else phB.setImage(selBitmap);
+        } else {
+            Toast.makeText(this, "No picture was selected!", Toast.LENGTH_SHORT).show();
         }
-
     }
 
 
@@ -473,11 +562,8 @@ public class ActivitySelfieSwap extends AppCompatActivity {
      * Returns a bitmap of right size proportions.
      */
     private Bitmap makeBitmap(String path) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 1;
-        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
         Bitmap bitmap2 = resizeBitmap(bitmap);
-
         return bitmap2;
     }
 
