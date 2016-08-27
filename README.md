@@ -18,7 +18,7 @@ http://emojione.com/
 
 ### App features
 * Swap faces of two selfies. Pick two photos and swap! (Use two first tabs)
-* Swap faces of people in the same photo. (Use last third tab)
+* Swap faces of people in the same photo. (Use third tab)
 
 ### App interface
 <p align="center">
