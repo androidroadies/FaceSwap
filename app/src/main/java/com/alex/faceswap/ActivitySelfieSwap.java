@@ -30,7 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -553,7 +552,7 @@ public class ActivitySelfieSwap extends AppCompatActivity implements TabLayout.O
             }
 
         } else {
-            Toast.makeText(this, "No picture was selected!", Toast.LENGTH_SHORT).show();
+            Snackbar.make(coordinatorLayout, "No photo was selected!", Snackbar.LENGTH_LONG).show();
         }
     }
 
