@@ -74,51 +74,13 @@ Java_com_alex_faceswap_FaceSwap_portraitSwapNative( JNIEnv *env,
 
     Mat* retImg = (Mat*)addrResult;
 
-
     // Call faceswap function to swap faces
     Mat swapImg = faceswap_main(img1, img2, points1, points2);
 
     swapImg.convertTo(swapImg, CV_8UC3);
 
-
     swapImg.copyTo(*retImg);
-
-
 }
-}
-
-void my_bitwise_and(Mat& img, Mat mask)
-{
-	for (int i = 0; i < img.rows; i++) {
-		for (int j = 0; j < img.cols; j++) {
-			int val = mask.at<uchar>(i,j);
-
-			if (!val) {
-				Vec3b& v = img.at<Vec3b>(i,j);
-				v[0] = 0;
-				v[1] = 0;
-				v[2] = 0;
-			}
-		}
-	}
-}
-
-
-
-void my_mat_add(Mat& matt1, Mat matt2)
-{
-	for (int i = 0; i < matt1.rows; i++) {
-		for (int j = 0; j < matt1.cols; j++) {
-
-			Vec3b& col1 = matt1.at<Vec3b>(i,j);
-			Vec3b col2 = matt2.at<Vec3b>(i,j);
-            if ((int)col2[0] || (int)col2[1] || (int)col2[2]) {
-                col1[0] = (int)col2[0];
-                col1[1] = (int)col2[1];
-                col1[2] = (int)col2[2];
-		    }
-		}
-	}
 }
 
 
@@ -242,7 +204,7 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
     Subdiv2D subdiv(rect);
 
 	// Insert points into subdiv
-    for ( vector<Point2f>::iterator it = points.begin(); it != points.end(); it++)
+    for (vector<Point2f>::iterator it = points.begin(); it != points.end(); it++)
         subdiv.insert(*it);
 
 	vector<Vec6f> triangleList;
@@ -250,13 +212,13 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
 	vector<Point2f> pt(3);
 	vector<int> ind(3);
 
-	for( size_t i = 0; i < triangleList.size(); i++ ) {
+	for (size_t i = 0; i < triangleList.size(); i++) {
 		Vec6f t = triangleList[i];
 		pt[0] = Point2f(t[0], t[1]);
 		pt[1] = Point2f(t[2], t[3]);
 		pt[2] = Point2f(t[4], t[5 ]);
 
-		if ( rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])){
+		if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])){
 			for (int j = 0; j < 3; j++)
 				for (size_t k = 0; k < points.size(); k++)
 					if (abs(pt[j].x - points[k].x) < 1.0 && abs(pt[j].y - points[k].y) < 1)
