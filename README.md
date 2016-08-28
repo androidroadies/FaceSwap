@@ -34,7 +34,7 @@ Swap example of some (public domain) photos.
 <img src="git_images/bush_clinton.png" height="450" alt="Screenshot"/>
 </p>
 
-Swap example of a (public domain) photo of the Dutch royal family. Rather nice swap, it is hard to public domain photos of families.
+Swap example of a (public domain) photo of the Dutch royal family. Rather nice swap, it is hard to find public domain photos of families.
 <p align="center">
 <img src="git_images/dutch_royal_family.jpg" height="250" alt="Screenshot"/>
 <img src="git_images/dutch_royal_family_swap.png" height="250" alt="Screenshot"/>
