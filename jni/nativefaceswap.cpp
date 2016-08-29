@@ -18,11 +18,12 @@
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 
+#define JNI_FALSE  0
+#define JNI_TRUE   1
+
 using namespace std;
 using namespace cv;
 
-#define JNI_FALSE  0
-#define JNI_TRUE   1
 
 // Transforming java-vectors to C++ data structures
 vector<Point2f> readPoints(JNIEnv *env, jintArray landmarksX1, jintArray landmarksY1);
@@ -35,8 +36,6 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
 void warpTriangle(Mat &img1, Mat &img2, vector<Point2f> &t1, vector<Point2f> &t2);
 
 void applyAffineTransform(Mat &warpImage, Mat &src, vector<Point2f> &srcTri, vector<Point2f> &dstTri);
-
-void adjust_faces(Mat img1, Mat& img2);
 
 
 
