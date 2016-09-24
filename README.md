@@ -1,7 +1,7 @@
 # FaceSwap
 Android app for face swapping. 
 
-**Warning: This app does not support all processor architectures. **
+**Warning: This app does not support all processor architectures.**
 
 **Tested on: Google Nexus 5x.**
 
